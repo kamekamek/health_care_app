@@ -1,6 +1,6 @@
 import { Page as AppPage } from "@/components/app-page"
 
-export function Page() {
+export default function Page() {
   return <AppPage />
 }
 

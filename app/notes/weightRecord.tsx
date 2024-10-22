@@ -8,8 +8,12 @@ function WeightRecord() {
 
     const userId = 'test_user_id'; // テスト用ユーザーID
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
+        await saveWeight();
+    };
+
+    const saveWeight = async () => {
         // 体重をSupabaseに保存
         const { data, error } = await supabase
             .from('weight_records')
@@ -32,6 +36,13 @@ function WeightRecord() {
         };
 
         fetchRecords();
+
+        // 体重を自動で記録する
+        const intervalId = setInterval(() => {
+            saveWeight();
+        }, 60000); // 1分ごとに体重を記録
+
+        return () => clearInterval(intervalId); // クリーンアップ
     }, []);
 
     return (
