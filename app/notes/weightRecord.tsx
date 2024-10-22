@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../utils/supabase/supabase';
+import { supabase } from '../../utils/supabase/supabase'; // パスを修正
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 function WeightRecord() {

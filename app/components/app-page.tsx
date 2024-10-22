@@ -2,25 +2,25 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
-import { Slider } from "@/components/ui/slider"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import { Label } from "../components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog"
+import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
+import { Progress } from "../components/ui/progress"
+import { Slider } from "../components/ui/slider"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip"
+import { Badge } from "../components/ui/badge"
+import { Separator } from "../components/ui/separator"
+import { ScrollArea } from "../components/ui/scroll-area"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Info, TrendingUp, TrendingDown, Utensils, Activity } from 'lucide-react'
 
 // Server action (simulated for this example)
-async function calculateNutritionPlan(data) {
+async function calculateNutritionPlan(data: any) {
   // ... (previous calculation logic remains unchanged)
 }
 
@@ -42,7 +42,7 @@ export function Page() {
     }
   }, [])
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault()
     setIsLoading(true)
     const formData = new FormData(event.target)
@@ -63,7 +63,7 @@ export function Page() {
     setIsDialogOpen(true)
   }
 
-  const handleProgressUpdate = (event) => {
+  const handleProgressUpdate = (event: any) => {
     event.preventDefault()
     const weight = Number(event.target.weight.value)
     const date = new Date().toISOString().split('T')[0]

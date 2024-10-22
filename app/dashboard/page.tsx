@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../../utils/supabase/supabase'
 import WeightRecordForm from '../components/WeightRecordForm'
 import NutritionPlanDisplay from '../components/NutritionPlanDisplay'
 import { WeightRecord, NutritionPlan } from '../lib/types'
