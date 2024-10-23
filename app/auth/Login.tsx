@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import AuthForm from '../components/AuthForm'
-import { supabase } from '../../utils/supabase/supabase'
+import { supabase } from '@/utils/supabase/supabase'
 
 export default function Login() {
   const [error, setError] = useState<string | null>(null)
@@ -23,14 +23,10 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-100">
-      <div className="max-w-md w-full space-y-8">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          ログイン
-        </h2>
-        <AuthForm onSubmit={handleLogin} buttonText="ログイン" />
-        {error && <p className="mt-2 text-center text-sm text-red-600">{error}</p>}
-      </div>
+    <div className="flex min-h-screen flex-col items-center justify-center p-24">
+      <h1 className="text-3xl font-bold mb-8">Login</h1>
+      <AuthForm onSubmit={handleLogin} buttonText="Login" />
+      {error && <p className="text-red-500 mt-4">{error}</p>}
     </div>
   )
 }

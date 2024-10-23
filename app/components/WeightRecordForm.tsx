@@ -1,7 +1,7 @@
-import { SetStateAction, useState } from 'react'
-import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
-import { Label } from "../components/ui/label"
+import { useState } from 'react'
+import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
 
 interface WeightRecordFormProps {
   onSubmit: (weight: number) => void
@@ -19,18 +19,17 @@ export default function WeightRecordForm({ onSubmit }: WeightRecordFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="weight">体重 (kg)</Label>
+        <Label htmlFor="weight">Weight (kg)</Label>
         <Input
           id="weight"
           type="number"
           step="0.1"
-          required
           value={weight}
-          onChange={(e: { target: { value: SetStateAction<string> } }) => setWeight(e.target.value)}
-          className="mt-1"
+          onChange={(e) => setWeight(e.target.value)}
+          required
         />
       </div>
-      <Button type="submit">記録</Button>
+      <Button type="submit">Record Weight</Button>
     </form>
   )
 }

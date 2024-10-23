@@ -2,43 +2,52 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../utils/supabase/supabase'
-import WeightRecordForm from '../components/WeightRecordForm'
+import { supabase } from '@/utils/supabase/supabase'
+import CalorieSuggestion from '../components/CaloriesSuggestion'
+import MealRecordForm from '../components/MealRecordForm'
+import MealRecordList from '../components/MealRecordList'
 import NutritionPlanDisplay from '../components/NutritionPlanDisplay'
-import { WeightRecord, NutritionPlan } from '../lib/types'
+import WeightRecordForm from '../components/WeightRecordForm'
 
 export default function Dashboard() {
-  const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([])
-  const [nutritionPlan, setNutritionPlan] = useState<NutritionPlan | null>(null)
+  const [user, setUser] = useState<any>(null)
+  const [mealRecords, setMealRecords] = useState([])
+  const [nutritionPlan, setNutritionPlan] = useState(null)
+  const [dailyCalories, setDailyCalories] = useState(2000) // Default value
   const router = useRouter()
 
   useEffect(() => {
-    const checkUser = async () => {
+    const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/auth/login')
+      if (user) {
+        setUser(user)
+        fetchMealRecords(user.id)
+        fetchNutritionPlan(user.id)
       } else {
-        fetchWeightRecords()
-        fetchNutritionPlan()
+        router.push('/auth/login')
       }
     }
-    checkUser()
+    getUser()
   }, [router])
 
-  const fetchWeightRecords = async () => {
+  const fetchMealRecords = async (userId: string) => {
     const { data, error } = await supabase
-      .from('weight_records')
+      .from('meal_records')
       .select('*')
-      .order('date', { ascending: false })
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
     if (data) {
-      setWeightRecords(data)
+      setMealRecords(data)
     }
   }
 
-  const fetchNutritionPlan = async () => {
+  const fetchNutritionPlan = async (userId: string) => {
     const { data, error } = await supabase
       .from('meal_plans')
       .select('*')
+      .eq('user_id', 
+
+ userId)
       .order('created_at', { ascending: false })
       .limit(1)
     if (data && data.length > 0) {
@@ -46,37 +55,50 @@ export default function Dashboard() {
     }
   }
 
+  const handleMealRecord = async (mealRecord: any) => {
+    const { data, error } = await supabase
+      .from('meal_records')
+      .insert({ ...mealRecord, user_id: user.id })
+    if (!error) {
+      fetchMealRecords(user.id)
+    }
+  }
+
   const handleWeightRecord = async (weight: number) => {
     const { data, error } = await supabase
       .from('weight_records')
-      .insert({ weight, date: new Date().toISOString() })
+      .insert({ weight, user_id: user.id })
     if (!error) {
-      fetchWeightRecords()
+      // You might want to update some state or refetch data here
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-8">
-      <h1 className="text-3xl font-bold text-center mb-8">ダッシュボード</h1>
-      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <h2 className="text-2xl font-semibold mb-4">体重記録</h2>
-          <WeightRecordForm onSubmit={handleWeightRecord} />
-          <ul className="mt-4 space-y-2">
-            {weightRecords.map((record) => (
-              <li key={record.id} className="bg-white rounded-lg p-4 shadow">
-                {new Date(record.date).toLocaleDateString()}: {record.weight} kg
-              </li>
-            ))}
-          </ul>
+          <h2 className="text-2xl font-semibold mb-4">Meal Records</h2>
+          <MealRecordForm onSubmit={handleMealRecord} />
+          <div className="mt-8">
+            <MealRecordList mealRecords={mealRecords} />
+          </div>
         </div>
         <div>
-          <h2 className="text-2xl font-semibold mb-4">栄養プラン</h2>
+          <h2 className="text-2xl font-semibold mb-4">Nutrition Plan</h2>
           {nutritionPlan ? (
             <NutritionPlanDisplay plan={nutritionPlan} />
           ) : (
-            <p>栄養プランがまだ作成されていません。</p>
+            <p>No nutrition plan available.</p>
           )}
+          <div className="mt-8">
+            <h2 className="text-2xl font-semibold mb-4">Calorie Suggestion</h2>
+            <CalorieSuggestion dailyCalories={dailyCalories} />
+          </div>
+          <div className="mt-8">
+            <h2 className="text-2xl font-semibold mb-4">Weight Record</h2>
+            <WeightRecordForm onSubmit={handleWeightRecord} />
+          </div>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
-import { Label } from "../components/ui/label"
+import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
 
 interface AuthFormProps {
   onSubmit: (email: string, password: string) => void
@@ -18,38 +18,28 @@ export default function AuthForm({ onSubmit, buttonText }: AuthFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
       <div>
-        <Label htmlFor="email">メールアドレス</Label>
+        <Label htmlFor="email">Email</Label>
         <Input
           id="email"
-          name="email"
           type="email"
-          autoComplete="email"
-          required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1"
+          required
         />
       </div>
       <div>
-        <Label htmlFor="password">パスワード</Label>
+        <Label htmlFor="password">Password</Label>
         <Input
           id="password"
-          name="password"
           type="password"
-          autoComplete="current-password"
-          required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1"
+          required
         />
       </div>
-      <div>
-        <Button type="submit" className="w-full">
-          {buttonText}
-        </Button>
-      </div>
+      <Button type="submit" className="w-full">{buttonText}</Button>
     </form>
   )
 }
