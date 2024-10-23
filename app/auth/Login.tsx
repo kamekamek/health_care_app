@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import AuthForm from '../../components/AuthForm'
-import { supabase } from '../../../utils/supabase/supabase'
+import AuthForm from '../components/AuthForm'
+import { supabase } from '../../utils/supabase/supabase'
 
 export default function Login() {
   const [error, setError] = useState<string | null>(null)
