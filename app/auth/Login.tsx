@@ -18,7 +18,7 @@ export default function Login() {
     if (error) {
       setError(error.message)
     } else {
-      router.push('/dashboard')
+      router.push('/dashboard') // 正しいルートに遷移
     }
   }
 
