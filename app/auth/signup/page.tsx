@@ -14,7 +14,7 @@ export default function SignUp() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/login`, // 認証メールのリンク先
+        emailRedirectTo: `${window.location.origin}/auth/login/`, // スラッシュを追加
       },
     });
 

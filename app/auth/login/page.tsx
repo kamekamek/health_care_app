@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import AuthForm from '../components/AuthForm'
+import AuthForm from '@/app/components/AuthForm'
 import { supabase } from '@/utils/supabase/supabase'
 
 export default function Login() {
@@ -18,7 +18,7 @@ export default function Login() {
     if (error) {
       setError(error.message)
     } else {
-      router.push('/dashboard') // 正しいルートに遷移
+      router.push('/dashboard')
     }
   }
 
