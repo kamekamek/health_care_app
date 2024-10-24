@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
 import { supabase } from '@/utils/supabase/supabase'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 export default function DashboardPage() {
   const router = useRouter()
   const [weightRecords, setWeightRecords] = useState([])
-  const [mealRecords, setMealRecords] = useState([])
-  const [nutritionPlans, setNutritionPlans] = useState([])
+  const [nutritionPlan, setNutritionPlan] = useState(null)
 
   useEffect(() => {
     fetchData()
@@ -34,26 +34,16 @@ export default function DashboardPage() {
       setWeightRecords(weightRecords)
     }
 
-    const { data: mealRecords, error: mealError } = await supabase
-      .from('meal_records')
-      .select('*')
-      .eq('user_id', user.id)
-
-    if (mealError) {
-      console.error('Error fetching meal records:', mealError)
-    } else {
-      setMealRecords(mealRecords)
-    }
-
     const { data: nutritionPlans, error: nutritionError } = await supabase
       .from('nutrition_plans')
       .select('*')
       .eq('user_id', user.id)
+      .single();
 
     if (nutritionError) {
       console.error('Error fetching nutrition plans:', nutritionError)
     } else {
-      setNutritionPlans(nutritionPlans)
+      setNutritionPlan(nutritionPlans);
     }
   }
 
@@ -65,6 +55,16 @@ export default function DashboardPage() {
       router.push('/')
     }
   }
+
+  const latestWeightRecord = weightRecords[weightRecords.length - 1];
+  const targetWeight = nutritionPlan?.target_weight;
+  const currentWeight = latestWeightRecord?.weight;
+
+  const calculateProgress = (targetWeight: number, currentWeight: number) => {
+    return ((currentWeight / targetWeight) * 100).toFixed(2);
+  };
+
+  const progress = targetWeight && currentWeight ? calculateProgress(targetWeight, currentWeight) : 0;
 
   return (
     <div className="flex justify-center items-center min-h-screen">
@@ -82,7 +82,34 @@ export default function DashboardPage() {
             <Button onClick={() => router.push('/meal-record')}>食事を記録する</Button>
             <Button onClick={() => router.push('/nutrition-plan')}>栄養プランを作成</Button>
           </div>
-          {/* ここに体重の推移グラフやカロリー情報を表示 */}
+          <div className="mt-8">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={weightRecords}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="recorded_at" label={{ value: '日付', position: 'bottom' }} />
+                <YAxis label={{ value: '体重 (kg)', angle: -90, position: 'insideLeft' }} />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="weight" stroke="#8884d8" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold">目標達成度</h3>
+            <div className="w-full bg-gray-200 rounded-full h-4">
+              <div
+                className="bg-green-500 h-4 rounded-full"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p>{progress}%達成</p>
+          </div>
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold">1日あたりの摂取カロリー</h3>
+            <p>目標体重: {targetWeight} kg</p>
+            <p>現在の体重: {currentWeight} kg</p>
+            {/* 摂取カロリーの内訳を表示 */}
+          </div>
         </CardContent>
       </Card>
     </div>
