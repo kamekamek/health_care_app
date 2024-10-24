@@ -2,17 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
 import { supabase } from '@/utils/supabase/supabase'
-import { Button } from '@/app/components/ui/button'
-import { Input } from '@/app/components/ui/input'
-import { Label } from '@/app/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/app/components/ui/select'
 
 export default function NutritionPlanPage() {
   const router = useRouter()
@@ -20,166 +15,151 @@ export default function NutritionPlanPage() {
     age: '',
     gender: '',
     height: '',
-    currentWeight: '',
-    targetWeight: '',
-    targetDate: '',
-    activityLevel: '',
+    current_weight: '',
+    target_weight: '',
+    target_date: '',
+    activity_level: '',
   })
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      router.push('/auth/login')
-      return
-    }
-
-    const { error } = await supabase
-      .from('nutrition_plans') // nutrition_plans テーブルを参照
-      .insert({
-        user_id: user.id,
-        gender: formData.gender,
-        age: Number(formData.age),
-        height: Number(formData.height),
-        current_weight: Number(formData.currentWeight),
-        target_weight: Number(formData.targetWeight),
-        target_date: formData.targetDate,
-        activity_level: formData.activityLevel,
-        daily_calories: calculateDailyCalories() // カロリー計算関数を呼び出す
-      })
-
-    if (!error) {
-      router.push('/dashboard')
-    } else {
-      console.error(error)
-    }
+  const handleInputChange = (field, value) => {
+    setFormData(prevData => ({ ...prevData, [field]: value }))
   }
 
-  const calculateDailyCalories = (): number => {
-    const bmr = formData.gender === 'male'
-      ? 66.47 + (13.75 * Number(formData.currentWeight)) + (5.003 * Number(formData.height)) - (6.755 * Number(formData.age))
-      : 655.1 + (9.563 * Number(formData.currentWeight)) + (1.850 * Number(formData.height)) - (4.676 * Number(formData.age))
-
-    const activityMultiplier = {
+  const calculateDailyCalories = () => {
+    // This is a simplified calculation. You might want to use a more accurate formula.
+    const bmr = 10 * parseFloat(formData.current_weight) + 6.25 * parseFloat(formData.height) - 5 * parseInt(formData.age) + (formData.gender === 'male' ? 5 : -161)
+    const activityMultipliers = {
       sedentary: 1.2,
       light: 1.375,
       moderate: 1.55,
       active: 1.725,
-      veryActive: 1.9
-    }[formData.activityLevel] || 1.2
+      very_active: 1.9
+    }
+    return Math.round(bmr * activityMultipliers[formData.activity_level])
+  }
 
-    const daysUntilTarget = Math.ceil(
-      (new Date(formData.targetDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-    );
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
 
-    const weightChange = Number(formData.targetWeight) - Number(formData.currentWeight);
-    const CALORIES_PER_KG = 7700;
-    const dailyCalorieAdjustment = (weightChange * CALORIES_PER_KG) / daysUntilTarget;
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      router.push('/')
+      return
+    }
 
-    const recommendedDailyCalories = Math.round(bmr * activityMultiplier + dailyCalorieAdjustment);
-    return recommendedDailyCalories;
+    const daily_calories = calculateDailyCalories()
+
+    const { data, error } = await supabase
+      .from('nutrition_plans')
+      .insert([
+        { 
+          user_id: user.id,
+          ...formData,
+          daily_calories
+        }
+      ])
+
+    if (error) {
+      setError(error.message)
+    } else {
+      router.push('/dashboard')
+    }
   }
 
   return (
-    <div className="container mx-auto p-4 max-w-md">
-      <h1 className="text-2xl font-bold mb-6">栄養プラン作成</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Label htmlFor="age">年齢</Label>
-          <Input
-            id="age"
-            type="number"
-            value={formData.age}
-            onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-            required
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="gender">性別</Label>
-          <Select
-            value={formData.gender}
-            onValueChange={(value) => setFormData({ ...formData, gender: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="性別を選択" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="male">男性</SelectItem>
-              <SelectItem value="female">女性</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label htmlFor="height">身長 (cm)</Label>
-          <Input
-            id="height"
-            type="number"
-            step="0.1"
-            value={formData.height}
-            onChange={(e) => setFormData({ ...formData, height: e.target.value })}
-            required
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="currentWeight">現在の体重 (kg)</Label>
-          <Input
-            id="currentWeight"
-            type="number"
-            step="0.1"
-            value={formData.currentWeight}
-            onChange={(e) => setFormData({ ...formData, currentWeight: e.target.value })}
-            required
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="targetWeight">目標体重 (kg)</Label>
-          <Input
-            id="targetWeight"
-            type="number"
-            step="0.1"
-            value={formData.targetWeight}
-            onChange={(e) => setFormData({ ...formData, targetWeight: e.target.value })}
-            required
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="targetDate">目標達成日</Label>
-          <Input
-            id="targetDate"
-            type="date"
-            value={formData.targetDate}
-            onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })}
-            required
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="activityLevel">活動レベル</Label>
-          <Select
-            value={formData.activityLevel}
-            onValueChange={(value) => setFormData({ ...formData, activityLevel: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="活動レベルを選択" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="sedentary">座り仕事が多い</SelectItem>
-              <SelectItem value="light">軽い運動をする</SelectItem>
-              <SelectItem value="moderate">中程度の運動をする</SelectItem>
-              <SelectItem value="active">激しい運動をする</SelectItem>
-              <SelectItem value="veryActive">非常に激しい運動をする</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Button type="submit">栄養プランを作成</Button>
-      </form>
-    </div>
+    <Card className="w-full max-w-2xl">
+      <CardHeader>
+        <CardTitle>栄養プラン作成</CardTitle>
+        <CardDescription>あなたの情報を入力して、最適な栄養プランを作成しましょう</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="age">年齢</Label>
+            <Input
+              id="age"
+              type="number"
+              value={formData.age}
+              onChange={(e) => handleInputChange('age', e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="gender">性別</Label>
+            <Select onValueChange={(value) => handleInputChange('gender', value)} required>
+              <SelectTrigger>
+                <SelectValue placeholder="性別を選択" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="male">男性</SelectItem>
+                <SelectItem value="female">女性</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="height">身長 (cm)</Label>
+            <Input
+              id="height"
+              type="number"
+              step="0.1"
+              value={formData.height}
+              onChange={(e) => handleInputChange('height', e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="current_weight">現在の体重 (kg)</Label>
+            <Input
+              id="current_weight"
+              type="number"
+              step="0.1"
+              value={formData.current_weight}
+              onChange={(e) => handleInputChange('current_weight', e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="target_weight">目標体重 (kg)</Label>
+            <Input
+              id="target_weight"
+              type="number"
+              step="0.1"
+              value={formData.target_weight}
+              onChange={(e) => handleInputChange('target_weight', e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="target_date">目標達成期日</Label>
+            <Input
+              id="target_date"
+              type="date"
+              value={formData.target_date}
+              onChange={(e) => handleInputChange('target_date', e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="activity_level">活動レベル</Label>
+            <Select onValueChange={(value) => handleInputChange('activity_level', value)} required>
+              <SelectTrigger>
+                <SelectValue placeholder="活動レベルを選択" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="sedentary">座り仕事が多い</SelectItem>
+                <SelectItem value="light">軽い運動をする</SelectItem>
+                <SelectItem value="moderate">中程度の運動をする</SelectItem>
+                <SelectItem value="active">活発に運動する</SelectItem>
+                <SelectItem value="very_active">非常に活発に運動する</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {error && <p className="text-red-500">{error}</p>}
+          <Button type="submit" className="w-full">栄養プランを作成</Button>
+        </form>
+      </CardContent>
+    </Card>
   )
 }

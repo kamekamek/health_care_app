@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from './components/ui/button'
-import { Input } from './components/ui/input'
-import { Label } from './components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './components/ui/card'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
 import { supabase } from '@/utils/supabase/supabase'
 
-export default function LoginPage() {
+export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -18,7 +18,7 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     })
@@ -26,15 +26,16 @@ export default function LoginPage() {
     if (error) {
       setError(error.message)
     } else {
-      router.push('/dashboard')
+      // Redirect to a confirmation page or show a success message
+      router.push('/signup-success')
     }
   }
 
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>ログイン</CardTitle>
-        <CardDescription>アカウントにログインしてください</CardDescription>
+        <CardTitle>会員登録</CardTitle>
+        <CardDescription>新しいアカウントを作成してください</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -60,14 +61,14 @@ export default function LoginPage() {
             />
           </div>
           {error && <p className="text-red-500">{error}</p>}
-          <Button type="submit" className="w-full">ログイン</Button>
+          <Button type="submit" className="w-full">登録</Button>
         </form>
       </CardContent>
       <CardFooter>
         <p className="text-sm text-center w-full">
-          アカウントをお持ちでない方は
-          <a href="/signup" className="text-blue-500 hover:underline">こちら</a>
-          から登録してください
+          既にアカウントをお持ちの方は
+          <a href="/" className="text-blue-500 hover:underline">こちら</a>
+          からログインしてください
         </p>
       </CardFooter>
     </Card>

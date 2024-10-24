@@ -2,40 +2,64 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
 import { supabase } from '@/utils/supabase/supabase'
-import WeightRecordForm from '@/app/components/WeightRecordForm'
 
 export default function WeightRecordPage() {
-  const router = useRouter()
+  const [weight, setWeight] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
-  const handleWeightRecord = async (weight: number) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-      router.push('/auth/login')
+      router.push('/')
       return
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('weight_records')
-      .insert({
-        weight,
-        user_id: user.id,
-        recorded_at: new Date().toISOString()
-      })
+      .insert([
+        { user_id: user.id, weight: parseFloat(weight) }
+      ])
 
     if (error) {
       setError(error.message)
     } else {
-      router.push('/dashboard') // 保存後にダッシュボードに戻る
+      router.push('/dashboard')
     }
   }
 
   return (
-    <div className="container mx-auto p-4 max-w-md">
-      <h1 className="text-2xl font-bold mb-6">体重記録</h1>
-      {error && <p className="text-red-500">{error}</p>}
-      <WeightRecordForm onSubmit={handleWeightRecord} />
-    </div>
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>体重記録</CardTitle>
+        <CardDescription>今日の体重を記録してください</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="weight">体重 (kg)</Label>
+            <Input
+              id="weight"
+              type="number"
+              step="0.1"
+              placeholder="65.5"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              required
+            />
+          </div>
+          {error && <p className="text-red-500">{error}</p>}
+          <Button type="submit" className="w-full">記録する</Button>
+        </form>
+      </CardContent>
+    </Card>
   )
 }
