@@ -121,7 +121,7 @@ export default function NutritionPlanPage() {
 
     const { error } = await supabase
       .from('nutrition_plans')
-      .upsert([{ user_id: user.id, ...formData, daily_calories }]) // user_idを含めないように修正
+      .upsert([{ ...formData, user_id: user.id, daily_calories }]) // user_idを含めないように修正
 
     if (error) {
       setError(error.message)
@@ -192,7 +192,7 @@ export default function NutritionPlanPage() {
                     id="height"
                     type="number"
                     step="0.1"
-                    value={formData.height.toString()} // 数値を文字列に変換
+                    value={formData.height.toString()} // 数値を文字���に変換
                     onChange={(e) => handleInputChange('height', parseFloat(e.target.value))} // 文字列を数値に変換
                     required
                   />
