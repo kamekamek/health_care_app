@@ -5,7 +5,7 @@ import { cn } from "../../lib/utils"
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   placeholder?: string; // 例: placeholderプロパティを追加
-  value?: string; // 例: valueプロパティを追加
+  value?: string | number | undefined; // Date型を削除
   // 他の必要なプロパティを追加することもできます
 }
 

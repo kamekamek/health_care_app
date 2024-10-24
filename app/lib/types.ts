@@ -11,7 +11,7 @@ export interface NutritionPlan {
     height: number // ReactNodeからnumberに変更
     current_weight: number // ReactNodeからnumberに変更
     target_weight: number // ReactNodeからnumberに変更
-    target_date: string | number | Date
+    target_date: string
     activity_level: string // ReactNodeからstringに変更
     daily_calories: number // ReactNodeからnumberに変更
     id: number // 型をstringからnumberに変更

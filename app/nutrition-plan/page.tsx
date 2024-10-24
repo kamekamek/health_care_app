@@ -192,7 +192,7 @@ export default function NutritionPlanPage() {
                     id="height"
                     type="number"
                     step="0.1"
-                    value={formData.height.toString()} // 数値を文字���に変換
+                    value={formData.height.toString()} // 数値を文字列に変換
                     onChange={(e) => handleInputChange('height', parseFloat(e.target.value))} // 文字列を数値に変換
                     required
                   />
@@ -224,7 +224,7 @@ export default function NutritionPlanPage() {
                   <Input
                     id="target_date"
                     type="date"
-                    value={formData.target_date}
+                    value={formData.target_date.toString()}
                     onChange={(e) => handleInputChange('target_date', e.target.value)}
                     required
                   />
