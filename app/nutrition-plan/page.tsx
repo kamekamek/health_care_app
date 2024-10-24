@@ -36,7 +36,7 @@ export default function NutritionPlanPage() {
     }
 
     const { error } = await supabase
-      .from('nutrition_plans')
+      .from('nutrition_plans') // nutrition_plans テーブルを参照
       .insert({
         user_id: user.id,
         gender: formData.gender,
