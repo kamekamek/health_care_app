@@ -2,23 +2,28 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
+import { Progress } from "../components/ui/progress"
 import { supabase } from '@/utils/supabase/supabase'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { format } from 'date-fns'
+import { format, subDays } from 'date-fns'
 
 export default function DashboardPage() {
   const router = useRouter()
   const [weightRecords, setWeightRecords] = useState([])
   const [nutritionPlan, setNutritionPlan] = useState(null)
   const [dailyCalories, setDailyCalories] = useState(null)
+  const [recentAchievements, setRecentAchievements] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchData()
   }, [])
 
   const fetchData = async () => {
+    setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       router.push('/')
@@ -49,6 +54,22 @@ export default function DashboardPage() {
       setNutritionPlan(nutritionPlan)
       calculateDailyCalories(nutritionPlan, weightRecords[weightRecords.length - 1])
     }
+
+    // 最近の達成を取得
+    const { data: achievements, error: achievementsError } = await supabase
+      .from('achievements')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('achieved_at', { ascending: false })
+      .limit(5)
+
+    if (achievementsError) {
+      console.error('Error fetching achievements:', achievementsError)
+    } else {
+      setRecentAchievements(achievements)
+    }
+
+    setLoading(false)
   }
 
   const calculateDailyCalories = (plan, latestWeight) => {
@@ -112,60 +133,119 @@ export default function DashboardPage() {
 
   const progress = calculateProgress()
 
+  const getEncouragementMessage = () => {
+    if (progress > 90) return "素晴らしい！目標達成まであと一歩です！"
+    if (progress > 70) return "順調に進んでいます。このまま頑張りましょう！"
+    if (progress > 50) return "半分以上達成しました。あきらめずに続けましょう！"
+    if (progress > 30) return "良いスタートです。一歩ずつ前進しています！"
+    return "始めたばかりですね。一緒に頑張りましょう！"
+  }
+
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>
+  }
+
   return (
-    <div className="flex justify-center items-center min-h-screen">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
       <Button onClick={handleLogout} className="absolute top-4 right-4 bg-red-500 text-white">ログアウト</Button>
-      <Card className="w-full max-w-4xl space-y-6">
-        <CardHeader className="flex justify-between items-center">
-          <div>
-            <CardTitle>ダッシュボード</CardTitle>
-            <CardDescription>あなたの進捗状況</CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <Button onClick={() => router.push('/weight-record')}>体重を記録する</Button>
-            <Button onClick={() => router.push('/meal-record')}>食事を記録する</Button>
-            <Button onClick={() => router.push('/nutrition-plan')}>栄養プランを作成</Button>
-          </div>
-          <div className="mt-8">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={weightRecords}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="recorded_at" 
-                  tickFormatter={(date) => format(new Date(date), 'MM/dd HH:mm')}
-                  label={{ value: '日付', position: 'insideBottom', offset: -5 }} 
-                />
-                <YAxis label={{ value: '体重 (kg)', angle: -90, position: 'insideLeft' }} />
-                <Tooltip labelFormatter={(date) => format(new Date(date), 'yyyy/MM/dd HH:mm')} />
-                <Legend verticalAlign="top" height={36}/>
-                <Line type="monotone" dataKey="weight" stroke="#8884d8" name="体重" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold">目標達成度</h3>
-            <div className="w-full bg-gray-200 rounded-full h-4">
-              <div
-                className="bg-green-500 h-4 rounded-full"
-                style={{ width: `${progress}%` }}
-              />
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="w-full max-w-4xl space-y-6 bg-white/90 backdrop-blur-md">
+          <CardHeader className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-3xl font-bold text-purple-700">ダッシュボード</CardTitle>
+              <CardDescription>あなたの進捗状況</CardDescription>
             </div>
-            <p>{progress}%達成</p>
-          </div>
-          {dailyCalories && (
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold">1日あたりの推奨摂取カロリー</h3>
-              <p>合計: {dailyCalories.total} kcal</p>
-              <p>朝食: {dailyCalories.breakfast} kcal</p>
-              <p>昼食: {dailyCalories.lunch} kcal</p>
-              <p>夕食: {dailyCalories.dinner} kcal</p>
-              <p>間食: {dailyCalories.snack} kcal</p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              <Button onClick={() => router.push('/weight-record')} className="bg-blue-500 hover:bg-blue-600">体重を記録する</Button>
+              <Button onClick={() => router.push('/meal-record')} className="bg-green-500 hover:bg-green-600">食事を記録する</Button>
+              <Button onClick={() => router.push('/nutrition-plan')} className="bg-yellow-500 hover:bg-yellow-600">栄養プランを作成</Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={weightRecords}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="recorded_at" 
+                    tickFormatter={(date) => format(new Date(date), 'MM/dd')}
+                    label={{ value: '日付', position: 'insideBottom', offset: -5 }} 
+                  />
+                  <YAxis label={{ value: '体重 (kg)', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip labelFormatter={(date) => format(new Date(date), 'yyyy/MM/dd HH:mm')} />
+                  <Legend verticalAlign="top" height={36}/>
+                  <Line type="monotone" dataKey="weight" stroke="#8884d8" name="体重" />
+                </LineChart>
+              </ResponsiveContainer>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mb-8"
+            >
+              <h3 className="text-lg font-semibold mb-2">目標達成度</h3>
+              <Progress value={parseFloat(progress)} className="h-4" />
+              <p className="text-right mt-1">{progress}% 達成</p>
+              <p className="text-center mt-2 font-bold text-lg">{getEncouragementMessage()}</p>
+            </motion.div>
+            {dailyCalories && (
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="bg-gradient-to-r from-orange-400 to-red-500 p-6 rounded-lg text-white"
+              >
+                <h3 className="text-2xl font-bold mb-4">1日あたりの推奨摂取カロリー</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-lg">合計: <span className="text-3xl font-bold">{dailyCalories.total}</span> kcal</p>
+                  </div>
+                  <div>
+                    <p>朝食: {dailyCalories.breakfast} kcal</p>
+                    <p>昼食: {dailyCalories.lunch} kcal</p>
+                    <p>夕食: {dailyCalories.dinner} kcal</p>
+                    <p>間食: {dailyCalories.snack} kcal</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="mt-8"
+            >
+              <h3 className="text-xl font-bold mb-4">最近の達成</h3>
+              <ul className="space-y-2">
+                <AnimatePresence>
+                  {recentAchievements.map((achievement, index) => (
+                    <motion.li
+                      key={achievement.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      className="bg-green-100 p-2 rounded"
+                    >
+                      {achievement.description} - {format(new Date(achievement.achieved_at), 'yyyy/MM/dd')}
+                    </motion.li>
+                  ))}
+                </AnimatePresence>
+              </ul>
+            </motion.div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   )
 }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
@@ -18,7 +19,7 @@ export default function SignUpPage() {
     e.preventDefault()
     setError(null)
 
-    const { user, error: signupError } = await supabase.auth.signUp({
+    const { data: { user }, error: signupError } = await supabase.auth.signUp({
       email,
       password,
     })
@@ -28,61 +29,79 @@ export default function SignUpPage() {
       return
     }
 
-    // ユーザー情報をusersテーブルに挿入
-    const { error: insertError } = await supabase
-      .from('users')
-      .insert([{ id: user?.id, email }]) // user.idを使用
+    if (user) {
+      const { error: insertError } = await supabase
+        .from('users')
+        .insert([{ id: user.id, email: user.email }])
 
-    if (insertError) {
-      setError(insertError.message)
-      return
+      if (insertError) {
+        setError(insertError.message)
+        return
+      }
+
+      router.push('/dashboard')
     }
-
-    router.push('/dashboard')
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>会員登録</CardTitle>
-          <CardDescription>新しいアカウントを作成してください</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSignup} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">メールアドレス</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">パスワード</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            {error && <p className="text-red-500">{error}</p>}
-            <Button type="submit" className="w-full">登録</Button>
-          </form>
-        </CardContent>
-        <CardFooter>
-          <p className="text-sm text-center w-full">
-            既にアカウントをお持ちの方は
-            <a href="/" className="text-blue-500 hover:underline">こちら</a>
-            からログインしてください
-          </p>
-        </CardFooter>
-      </Card>
+    <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-r from-green-400 to-blue-500">
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center mb-8"
+      >
+        <h1 className="text-4xl font-bold text-white mb-2">増量ヘルパー ラビタートル</h1>
+        <p className="text-xl text-white">新規登録</p>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="w-full max-w-md bg-white/90 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">会員登録</CardTitle>
+            <CardDescription className="text-center">新しいアカウントを作成してください</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSignup} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">メールアドレス</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="bg-white/50"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">パスワード</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="bg-white/50"
+                />
+              </div>
+              {error && <p className="text-red-500 text-center">{error}</p>}
+              <Button type="submit" className="w-full bg-green-500 hover:bg-green-600 text-white">登録</Button>
+            </form>
+          </CardContent>
+          <CardFooter>
+            <p className="text-sm text-center w-full">
+              既にアカウントをお持ちの方は
+              <a href="/" className="text-blue-500 hover:underline">こちら</a>
+              からログインしてください
+            </p>
+          </CardFooter>
+        </Card>
+      </motion.div>
     </div>
   )
 }
