@@ -47,27 +47,28 @@ export default function DashboardPage() {
     if (weightError) {
       console.error('Error fetching weight records:', weightError)
     } else {
-      // 型を明示的に変換
       const formattedWeightRecords: WeightRecord[] = weightRecords.map(record => ({
-        recorded_at: record.recorded_at ?? new Date().toISOString(), // nullの場合のデフォルト値を設定
+        recorded_at: record.recorded_at ?? new Date().toISOString(),
         id: record.id,
-        user_id: record.user_id ?? '', // nullの場合のデフォルト値を設定
-        weight: record.weight ?? 0, // nullの場合のデフォルト値を設定
+        user_id: record.user_id ?? '',
+        weight: record.weight ?? 0,
       }))
       setWeightRecords(formattedWeightRecords)
-    }
 
-    const { data: nutritionPlan, error: nutritionError } = await supabase
-      .from('nutrition_plans')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
+      const { data: nutritionPlanData, error: nutritionError } = await supabase
+        .from('nutrition_plans')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
 
-    if (nutritionError) {
-      console.error('Error fetching nutrition plan:', nutritionError)
-    } else {
-      setNutritionPlan(nutritionPlan)
-      calculateDailyCalories(nutritionPlan, weightRecords[weightRecords.length - 1])
+      if (nutritionError) {
+        console.error('Error fetching nutrition plan:', nutritionError)
+      } else {
+        setNutritionPlan(nutritionPlanData)
+        if (formattedWeightRecords.length > 0) {
+          calculateDailyCalories(nutritionPlanData, formattedWeightRecords[formattedWeightRecords.length - 1])
+        }
+      }
     }
 
     setLoading(false)
@@ -79,7 +80,6 @@ export default function DashboardPage() {
     const { gender, age, height, target_weight, target_date, activity_level } = plan
     const currentWeight = latestWeight.weight
 
-    // BMR計算
     let bmr
     if (gender === 'male') {
       bmr = 88.362 + (13.397 * currentWeight) + (4.799 * height) - (5.677 * age)
@@ -87,8 +87,7 @@ export default function DashboardPage() {
       bmr = 447.593 + (9.247 * currentWeight) + (3.098 * height) - (4.330 * age)
     }
 
-    // 活動レベルに応じた係数
-    const activityMultipliers = {
+    const activityMultipliers: { [key: string]: number } = {
       sedentary: 1.2,
       light: 1.375,
       moderate: 1.55,
@@ -97,12 +96,10 @@ export default function DashboardPage() {
     }
     const totalCalories = bmr * activityMultipliers[activity_level]
 
-    // 目標に応じた調整
     const weightDifference = target_weight - currentWeight
     const targetCalories = weightDifference > 0 ? totalCalories * 1.15 : totalCalories * 0.85
 
-    // 目標達成期間の考慮
-    const daysUntilTarget = (new Date(target_date) - new Date()) / (1000 * 60 * 60 * 24)
+    const daysUntilTarget = (new Date(target_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
     const calorieAdjustment = (weightDifference * 7700) / daysUntilTarget
     const finalCalories = Math.round(targetCalories + calorieAdjustment)
 
@@ -129,7 +126,7 @@ export default function DashboardPage() {
     const initialWeight = weightRecords[0].weight
     const currentWeight = weightRecords[weightRecords.length - 1].weight
     const targetWeight = nutritionPlan.target_weight
-    return ((currentWeight - initialWeight) / (targetWeight - initialWeight) * 100).toFixed(2)
+    return Number(((currentWeight - initialWeight) / (targetWeight - initialWeight) * 100).toFixed(2))
   }
 
   const progress = calculateProgress()
@@ -195,7 +192,7 @@ export default function DashboardPage() {
               className="mb-8"
             >
               <h3 className="text-lg font-semibold mb-2">目標達成度</h3>
-              <Progress value={parseFloat(progress)} className="h-4" />
+              <Progress value={parseFloat(progress.toString())} className="h-4" />
               <p className="text-right mt-1">{progress}% 達成</p>
               <p className="text-center mt-2 font-bold text-lg">{getEncouragementMessage()}</p>
             </motion.div>

@@ -32,7 +32,7 @@ export default function SignUpPage() {
     if (user) {
       const { error: insertError } = await supabase
         .from('users')
-        .insert([{ id: user.id, email: user.email }])
+        .insert([{ id: user.id, email: user.email ?? '' }]) // emailがundefinedの場合のデフォルト値を設定
 
       if (insertError) {
         setError(insertError.message)

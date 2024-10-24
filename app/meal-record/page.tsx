@@ -10,9 +10,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { supabase } from '@/utils/supabase/supabase'
 
+// mealsの型を定義
+type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+type MealData = {
+  food: string;
+  calories: string;
+};
+
 export default function MealRecordPage() {
   const router = useRouter()
-  const [meals, setMeals] = useState({
+  const [meals, setMeals] = useState<Record<MealType, MealData>>({
     breakfast: { food: '', calories: '' },
     lunch: { food: '', calories: '' },
     dinner: { food: '', calories: '' },
@@ -20,7 +27,7 @@ export default function MealRecordPage() {
   })
   const [error, setError] = useState<string | null>(null)
 
-  const handleInputChange = (meal: string, field: string, value: string) => {
+  const handleInputChange = (meal: MealType, field: keyof MealData, value: string) => {
     setMeals(prevMeals => ({
       ...prevMeals,
       [meal]: { ...prevMeals[meal], [field]: value }
@@ -94,7 +101,7 @@ export default function MealRecordPage() {
                       <Input
                         id={`${meal}-food`}
                         value={data.food}
-                        onChange={(e) => handleInputChange(meal, 'food', e.target.value)}
+                        onChange={(e) => handleInputChange(meal as MealType, 'food', e.target.value)}
                         required
                       />
                     </div>
@@ -104,7 +111,7 @@ export default function MealRecordPage() {
                         id={`${meal}-calories`}
                         type="number"
                         value={data.calories}
-                        onChange={(e) => handleInputChange(meal, 'calories', e.target.value)}
+                        onChange={(e) => handleInputChange(meal as MealType, 'calories', e.target.value)}
                         required
                       />
                     </div>

@@ -9,20 +9,31 @@ import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
 import { supabase } from '@/utils/supabase/supabase'
+import { NutritionPlan } from '../lib/types'
 
 export default function NutritionPlanPage() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    age: '',
+  const [formData, setFormData] = useState<NutritionPlan>({
+    age: 0,
     gender: '',
-    height: '',
-    current_weight: '',
-    target_weight: '',
+    height: 0,
+    current_weight: 0,
+    target_weight: 0,
     target_date: '',
     activity_level: '',
+    id: 0,
+    user_id: '',
+    mealPlan: {
+      breakfast: '',
+      lunch: '',
+      dinner: '',
+      snack: ''
+    },
+    created_at: '',
+    daily_calories: 0
   })
   const [error, setError] = useState<string | null>(null)
-  const [nutritionPlan, setNutritionPlan] = useState(null)
+  const [nutritionPlan, setNutritionPlan] = useState<NutritionPlan | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -38,7 +49,7 @@ export default function NutritionPlanPage() {
     }
 
     const { data, error } = await supabase
-      .from('nutrition_plans')
+      .from('nutrition_plans') // 型引数を削除
       .select('*')
       .eq('user_id', user.id)
       .single()
@@ -46,8 +57,29 @@ export default function NutritionPlanPage() {
     if (error) {
       console.error('Error fetching nutrition plan:', error)
     } else if (data) {
-      setNutritionPlan(data)
-      setFormData(data)
+      const nutritionPlan: NutritionPlan = {
+        ...data,
+        mealPlan: {
+          breakfast: data.breakfast ?? '',
+          lunch: data.lunch ?? '',
+          dinner: data.dinner ?? '',
+          snack: data.snack ?? '',
+        },
+        daily_calories: data.daily_calories ?? 0
+      }
+      setNutritionPlan(nutritionPlan)
+      setFormData({
+        age: data.age,
+        gender: data.gender,
+        height: data.height,
+        current_weight: data.current_weight,
+        target_weight: data.target_weight,
+        target_date: data.target_date,
+        activity_level: data.activity_level,
+        id: data.id,
+        user_id: data.user_id,
+        created_at: data.created_at,
+      })
     }
     setIsLoading(false)
   }
@@ -57,7 +89,7 @@ export default function NutritionPlanPage() {
   }
 
   const calculateDailyCalories = () => {
-    const bmr = 10 * parseFloat(formData.current_weight) + 6.25 * parseFloat(formData.height) - 5 * parseInt(formData.age) + (formData.gender === 'male' ? 5 : -161)
+    const bmr = 10 * formData.current_weight + 6.25 * formData.height - 5 * formData.age + (formData.gender === 'male' ? 5 : -161)
     const activityMultipliers: { [key: string]: number } = {
       sedentary: 1.2,
       light: 1.375,
@@ -82,7 +114,7 @@ export default function NutritionPlanPage() {
 
     const { error } = await supabase
       .from('nutrition_plans')
-      .upsert([{ user_id: user.id, ...formData, daily_calories }])
+      .upsert([{ user_id: user.id, ...formData, daily_calories }]) // user_idを含めないように修正
 
     if (error) {
       setError(error.message)
@@ -130,8 +162,8 @@ export default function NutritionPlanPage() {
                   <Input
                     id="age"
                     type="number"
-                    value={formData.age}
-                    onChange={(e) => handleInputChange('age', e.target.value)}
+                    value={formData.age.toString()} // 数値を文字列に変換
+                    onChange={(e) => handleInputChange('age', parseInt(e.target.value))} // 文字列を数値に変換
                     required
                   />
                 </div>
@@ -153,8 +185,8 @@ export default function NutritionPlanPage() {
                     id="height"
                     type="number"
                     step="0.1"
-                    value={formData.height}
-                    onChange={(e) => handleInputChange('height', e.target.value)}
+                    value={formData.height.toString()} // 数値を文字列に変換
+                    onChange={(e) => handleInputChange('height', parseFloat(e.target.value))} // 文字列を数値に変換
                     required
                   />
                 </div>
@@ -164,8 +196,8 @@ export default function NutritionPlanPage() {
                     id="current_weight"
                     type="number"
                     step="0.1"
-                    value={formData.current_weight}
-                    onChange={(e) => handleInputChange('current_weight', e.target.value)}
+                    value={formData.current_weight.toString()} // 数値を文字列に変換
+                    onChange={(e) => handleInputChange('current_weight', parseFloat(e.target.value))} // 文字列を数値に変換
                     required
                   />
                 </div>
@@ -175,8 +207,8 @@ export default function NutritionPlanPage() {
                     id="target_weight"
                     type="number"
                     step="0.1"
-                    value={formData.target_weight}
-                    onChange={(e) => handleInputChange('target_weight', e.target.value)}
+                    value={formData.target_weight.toString()} // 数値を文字列に変換
+                    onChange={(e) => handleInputChange('target_weight', parseFloat(e.target.value))} // 文字列を数値に変換
                     required
                   />
                 </div>
