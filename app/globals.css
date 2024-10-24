@@ -66,6 +66,27 @@ body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+  /* globals.css または styles.css に追加 */
+.button {
+  background-color: #4CAF50; /* 緑色 */
+  color: white;
+  border-radius: 5px;
+  padding: 10px 20px;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: #45a049; /* ホバー時の色 */
+}
+
+.card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.text-red-500 {
+  color: #f56565; /* 赤色 */
+}
 }
 
 @layer base {

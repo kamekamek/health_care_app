@@ -3,11 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '../components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
-import { Progress } from "../components/ui/progress"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
 import { supabase } from '@/utils/supabase/supabase'
-import { NutritionPlan } from '../lib/types'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -71,13 +68,13 @@ export default function DashboardPage() {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
+      <Button onClick={handleLogout} className="absolute top-4 right-4 bg-red-500 text-white">ログアウト</Button>
       <Card className="w-full max-w-4xl space-y-6">
         <CardHeader className="flex justify-between items-center">
           <div>
             <CardTitle>ダッシュボード</CardTitle>
             <CardDescription>あなたの進捗状況</CardDescription>
           </div>
-          <Button onClick={handleLogout}>ログアウト</Button>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">

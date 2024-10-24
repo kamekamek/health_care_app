@@ -37,7 +37,7 @@ export default function MealRecordPage() {
     }
 
     const mealRecords = Object.entries(meals).map(([meal_type, { food, calories }]) => ({
-      user_id:  user.id,
+      user_id: user.id,
       meal_type,
       food,
       calories: parseInt(calories)
@@ -55,48 +55,53 @@ export default function MealRecordPage() {
   }
 
   return (
-    <Card className="w-full max-w-2xl">
-      <CardHeader>
-        <CardTitle>食事記録</CardTitle>
-        <CardDescription>今日の食事を記録してください</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit}>
-          <Tabs defaultValue="breakfast" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="breakfast">朝食</TabsTrigger>
-              <TabsTrigger value="lunch">昼食</TabsTrigger>
-              <TabsTrigger value="dinner">夕食</TabsTrigger>
-              <TabsTrigger value="snack">間食</TabsTrigger>
-            </TabsList>
-            {Object.entries(meals).map(([meal, data]) => (
-              <TabsContent key={meal} value={meal} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor={`${meal}-food`}>食品名</Label>
-                  <Input
-                    id={`${meal}-food`}
-                    value={data.food}
-                    onChange={(e) => handleInputChange(meal, 'food', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`${meal}-calories`}>カロリー (kcal)</Label>
-                  <Input
-                    id={`${meal}-calories`}
-                    type="number"
-                    value={data.calories}
-                    onChange={(e) => handleInputChange(meal, 'calories', e.target.value)}
-                    required
-                  />
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-          {error && <p className="text-red-500 mt-4">{error}</p>}
-          <Button type="submit" className="w-full mt-6">記録する</Button>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="flex flex-col items-center min-h-screen">
+      <Card className="w-full max-w-2xl mt-10">
+        <CardHeader>
+          <CardTitle>食事記録</CardTitle>
+          <CardDescription>今日の食事を記録してください</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit}>
+            <Tabs defaultValue="breakfast" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="breakfast">朝食</TabsTrigger>
+                <TabsTrigger value="lunch">昼食</TabsTrigger>
+                <TabsTrigger value="dinner">夕食</TabsTrigger>
+                <TabsTrigger value="snack">間食</TabsTrigger>
+              </TabsList>
+              {Object.entries(meals).map(([meal, data]) => (
+                <TabsContent key={meal} value={meal} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor={`${meal}-food`}>食品名</Label>
+                    <Input
+                      id={`${meal}-food`}
+                      value={data.food}
+                      onChange={(e) => handleInputChange(meal, 'food', e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`${meal}-calories`}>カロリー (kcal)</Label>
+                    <Input
+                      id={`${meal}-calories`}
+                      type="number"
+                      value={data.calories}
+                      onChange={(e) => handleInputChange(meal, 'calories', e.target.value)}
+                      required
+                    />
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
+            {error && <p className="text-red-500 mt-4">{error}</p>}
+            <Button type="submit" className="w-full mt-6">記録する</Button>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <Button onClick={() => router.push('/dashboard')} className="w-full">ダッシュボードに戻る</Button>
+        </CardFooter>
+      </Card>
+    </div>
   )
 }
