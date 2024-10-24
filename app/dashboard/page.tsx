@@ -8,15 +8,16 @@ import MealRecordForm from '../components/MealRecordForm'
 import MealRecordList from '../components/MealRecordList'
 import NutritionPlanDisplay from '../components/NutritionPlanDisplay'
 import WeightRecordForm from '../components/WeightRecordForm'
-import WeightRecordList from '../components/WeightRecordList'
-import { MealRecord, NutritionPlan } from '@/app/lib/types'
+import WeightRecordList from '../components/WeightRecordList' // 重複を削除
+import { MealRecord, NutritionPlan, WeightRecord } from '@/app/lib/types'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null)
   const [mealRecords, setMealRecords] = useState<MealRecord[]>([])
   const [nutritionPlan, setNutritionPlan] = useState<NutritionPlan | null>(null)
   const [dailyCalories, setDailyCalories] = useState<number | null>(null)
-  const [weightRecords, setWeightRecords] = useState<any[]>([])
+  const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export default function Dashboard() {
         setUser(user)
         fetchMealRecords(user.id)
         fetchNutritionPlan(user.id)
+        fetchWeightRecords(user.id)
       } else {
         router.push('/auth/login')
       }
@@ -97,10 +99,10 @@ export default function Dashboard() {
       .insert({
         weight,
         user_id: user.id,
-        recorded_at: new Date().toISOString()  // recorded_at カラムを使用
+        recorded_at: new Date().toISOString()
       })
     if (!error) {
-      fetchWeightRecords(user.id) // 体重記録を再取得する関数を呼び出す
+      fetchWeightRecords(user.id)
     }
   }
 
@@ -115,39 +117,60 @@ export default function Dashboard() {
     }
   }
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/auth/login')
+  }
+
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-8">ダッシュボード</h1>
+      <button onClick={handleLogout} className="mb-4 text-red-500">ログアウト</button>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <h2 className="text-2xl font-semibold mb-4">Meal Records</h2>
-          <MealRecordForm onSubmit={handleMealRecord} />
-          <div className="mt-8">
-            <MealRecordList mealRecords={mealRecords} />
-          </div>
+          <h2 className="text-2xl font-semibold mb-4">体重の推移</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={weightRecords}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="recorded_at" tickFormatter={(date) => new Date(date).toLocaleDateString()} />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="weight" stroke="#8884d8" />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
         <div>
-          <h2 className="text-2xl font-semibold mb-4">Nutrition Plan</h2>
+          <h2 className="text-2xl font-semibold mb-4">現在の体重と目標体重</h2>
+          <p>現在の体重: {weightRecords.length > 0 ? weightRecords[weightRecords.length - 1].weight : '記録なし'} kg</p>
+          <p>目標体重: {nutritionPlan ? nutritionPlan.target_weight : '設定なし'} kg</p>
+        </div>
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">今日の摂取カロリー</h2>
+          <CalorieSuggestion dailyCalories={dailyCalories} />
+        </div>
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">食事記録</h2>
+          <MealRecordList mealRecords={mealRecords} />
+        </div>
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">栄養プラン</h2>
           {nutritionPlan ? (
-            <>
-              <NutritionPlanDisplay plan={nutritionPlan} />
-              <div className="mt-4">
-                <h3 className="text-xl font-semibold">推奨1日摂取カロリー</h3>
-                <p>{dailyCalories ? `${dailyCalories} kcal` : '計算中...'}</p>
-              </div>
-            </>
+            <NutritionPlanDisplay plan={nutritionPlan} />
           ) : (
-            <p>No nutrition plan available.</p>
+            <p>栄養プランがありません。</p>
           )}
-          <div className="mt-8">
-            <h2 className="text-2xl font-semibold mb-4">Calorie Suggestion</h2>
-            <CalorieSuggestion dailyCalories={dailyCalories} />
-          </div>
-          <div className="mt-8">
-            <h2 className="text-2xl font-semibold mb-4">Weight Record</h2>
-            <WeightRecordForm onSubmit={handleWeightRecord} />
-            <WeightRecordList weightRecords={weightRecords} /> {/* 体重記録リストを表示 */}
-          </div>
+        </div>
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">体重を記録する</h2>
+          <WeightRecordForm onSubmit={handleWeightRecord} />
+        </div>
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">食事を記録する</h2>
+          <MealRecordForm onSubmit={handleMealRecord} />
+        </div>
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">栄養プランを作成</h2>
+          <button onClick={() => router.push('/nutrition-plan')} className="bg-blue-500 text-white px-4 py-2 rounded">栄養プラン作成</button>
         </div>
       </div>
     </div>

@@ -52,12 +52,10 @@ export default function NutritionPlanPage() {
     if (!error) {
       router.push('/dashboard')
     } else {
-      // エラーハンドリングを追加することを推奨
       console.error(error)
     }
   }
 
-  // 日々のカロリー計算ロジックを関数化
   const calculateDailyCalories = (): number => {
     const bmr = formData.gender === 'male'
       ? 66.47 + (13.75 * Number(formData.currentWeight)) + (5.003 * Number(formData.height)) - (6.755 * Number(formData.age))

@@ -19,7 +19,7 @@ export default function WeightRecordForm({ onSubmit }: WeightRecordFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="weight">Weight (kg)</Label>
+        <Label htmlFor="weight">現在の体重 (kg)</Label>
         <Input
           id="weight"
           type="number"
@@ -29,7 +29,7 @@ export default function WeightRecordForm({ onSubmit }: WeightRecordFormProps) {
           required
         />
       </div>
-      <Button type="submit">Record Weight</Button>
+      <Button type="submit">進捗を記録</Button>
     </form>
   )
 }

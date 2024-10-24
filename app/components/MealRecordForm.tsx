@@ -25,7 +25,7 @@ export default function MealRecordForm({ onSubmit }: MealRecordFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="breakfast">Breakfast</Label>
+        <Label htmlFor="breakfast">朝食</Label>
         <Input
           id="breakfast"
           value={breakfast}
@@ -34,7 +34,7 @@ export default function MealRecordForm({ onSubmit }: MealRecordFormProps) {
         />
       </div>
       <div>
-        <Label htmlFor="lunch">Lunch</Label>
+        <Label htmlFor="lunch">昼食</Label>
         <Input
           id="lunch"
           value={lunch}
@@ -43,7 +43,7 @@ export default function MealRecordForm({ onSubmit }: MealRecordFormProps) {
         />
       </div>
       <div>
-        <Label htmlFor="dinner">Dinner</Label>
+        <Label htmlFor="dinner">夕食</Label>
         <Input
           id="dinner"
           value={dinner}
@@ -52,14 +52,14 @@ export default function MealRecordForm({ onSubmit }: MealRecordFormProps) {
         />
       </div>
       <div>
-        <Label htmlFor="snack">Snack</Label>
+        <Label htmlFor="snack">間食</Label>
         <Input
           id="snack"
           value={snack}
           onChange={(e) => setSnack(e.target.value)}
         />
       </div>
-      <Button type="submit">Record Meal</Button>
+      <Button type="submit">食事を記録</Button>
     </form>
   )
 }
