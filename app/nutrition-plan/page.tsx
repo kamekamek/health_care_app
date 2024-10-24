@@ -79,6 +79,13 @@ export default function NutritionPlanPage() {
         id: data.id,
         user_id: data.user_id,
         created_at: data.created_at,
+        daily_calories: data.daily_calories ?? 0,
+        mealPlan: { // mealPlanを追加
+          breakfast: data.breakfast ?? '',
+          lunch: data.lunch ?? '',
+          dinner: data.dinner ?? '',
+          snack: data.snack ?? '',
+        }
       })
     }
     setIsLoading(false)
@@ -185,7 +192,7 @@ export default function NutritionPlanPage() {
                     id="height"
                     type="number"
                     step="0.1"
-                    value={formData.height.toString()} // 数値を文字列に変換
+                    value={formData.height.toString()} // 数値を文字���に変換
                     onChange={(e) => handleInputChange('height', parseFloat(e.target.value))} // 文字列を数値に変換
                     required
                   />
