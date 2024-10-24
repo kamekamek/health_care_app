@@ -22,14 +22,14 @@ export default function NutritionPlanPage() {
   })
   const [error, setError] = useState<string | null>(null)
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData(prevData => ({ ...prevData, [field]: value }))
   }
 
   const calculateDailyCalories = () => {
     // This is a simplified calculation. You might want to use a more accurate formula.
     const bmr = 10 * parseFloat(formData.current_weight) + 6.25 * parseFloat(formData.height) - 5 * parseInt(formData.age) + (formData.gender === 'male' ? 5 : -161)
-    const activityMultipliers = {
+    const activityMultipliers: { [key: string]: number } = {
       sedentary: 1.2,
       light: 1.375,
       moderate: 1.55,

@@ -2,7 +2,7 @@ import { ReactNode } from "react"
 
 export interface WeightRecord {
     recorded_at: string | number | Date
-    id: number
+    id: string // UUIDに変更
     user_id: string
     weight: number
     date: string
@@ -10,16 +10,15 @@ export interface WeightRecord {
 
 export interface NutritionPlan {
     gender: string
-    age: ReactNode
-    height: ReactNode
-    current_weight: ReactNode
-    target_weight: ReactNode
+    age: number // ReactNodeからnumberに変更
+    height: number // ReactNodeからnumberに変更
+    current_weight: number // ReactNodeからnumberに変更
+    target_weight: number // ReactNodeからnumberに変更
     target_date: string | number | Date
-    activity_level: ReactNode
-    daily_calories: ReactNode
-    id: number
+    activity_level: string // ReactNodeからstringに変更
+    daily_calories: number // ReactNodeからnumberに変更
+    id: string // UUIDに変更
     user_id: string
-    dailyCalories: number
     mealPlan: {
       breakfast: string
       lunch: string
@@ -30,12 +29,10 @@ export interface NutritionPlan {
 }
 
 export interface MealRecord {
-  id: number;
+  id: string; // UUIDに変更
   user_id: string;
-  breakfast: string | null;
-  lunch: string | null;
-  dinner: string | null;
-  snack: string | null;
-  created_at: string;
-  calories: number; // カロリーを追加
+  meal_type: string; // meal_typeを追加
+  food: string;
+  calories: number;
+  recorded_at: string; // recorded_atを追加
 }

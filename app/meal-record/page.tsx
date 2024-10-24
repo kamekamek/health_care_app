@@ -19,7 +19,7 @@ export default function MealRecordPage() {
   })
   const [error, setError] = useState<string | null>(null)
 
-  const handleInputChange = (meal, field, value) => {
+  const handleInputChange = (meal: string, field: string, value: string) => {
     setMeals(prevMeals => ({
       ...prevMeals,
       [meal]: { ...prevMeals[meal], [field]: value }
