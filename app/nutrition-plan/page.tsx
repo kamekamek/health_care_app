@@ -8,7 +8,6 @@ import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
-import { Slider } from '../components/ui/slider'
 import { supabase } from '@/utils/supabase/supabase'
 
 export default function NutritionPlanPage() {
@@ -81,7 +80,7 @@ export default function NutritionPlanPage() {
 
     const daily_calories = calculateDailyCalories()
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('nutrition_plans')
       .upsert([{ user_id: user.id, ...formData, daily_calories }])
 

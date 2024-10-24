@@ -1,11 +1,8 @@
-import { ReactNode } from "react"
-
 export interface WeightRecord {
     recorded_at: string | number | Date
-    id: string // UUIDに変更
+    id: number // 型をstringからnumberに変更
     user_id: string
     weight: number
-    date: string
 }
 
 export interface NutritionPlan {
@@ -17,7 +14,7 @@ export interface NutritionPlan {
     target_date: string | number | Date
     activity_level: string // ReactNodeからstringに変更
     daily_calories: number // ReactNodeからnumberに変更
-    id: string // UUIDに変更
+    id: number // 型をstringからnumberに変更
     user_id: string
     mealPlan: {
       breakfast: string

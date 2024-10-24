@@ -3,7 +3,12 @@ import * as React from "react"
 import { cn } from "../../lib/utils"
 
 export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  placeholder?: string; // 例: placeholderプロパティを追加
+  value?: string; // 例: valueプロパティを追加
+  // 他の必要なプロパティを追加することもできます
+}
+
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, ...props }, ref) => {

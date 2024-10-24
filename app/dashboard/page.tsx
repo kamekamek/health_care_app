@@ -8,14 +8,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { Progress } from "../components/ui/progress"
 import { supabase } from '@/utils/supabase/supabase'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { format, subDays } from 'date-fns'
+import { format } from 'date-fns'
+import { WeightRecord, NutritionPlan } from '../lib/types'
+
+interface DailyCalories {
+  total: number;
+  breakfast: number;
+  lunch: number;
+  dinner: number;
+  snack: number;
+}
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [weightRecords, setWeightRecords] = useState([])
-  const [nutritionPlan, setNutritionPlan] = useState(null)
-  const [dailyCalories, setDailyCalories] = useState(null)
-  const [recentAchievements, setRecentAchievements] = useState([])
+  const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([])
+  const [nutritionPlan, setNutritionPlan] = useState<NutritionPlan | null>(null)
+  const [dailyCalories, setDailyCalories] = useState<DailyCalories | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -39,7 +47,14 @@ export default function DashboardPage() {
     if (weightError) {
       console.error('Error fetching weight records:', weightError)
     } else {
-      setWeightRecords(weightRecords)
+      // 型を明示的に変換
+      const formattedWeightRecords: WeightRecord[] = weightRecords.map(record => ({
+        recorded_at: record.recorded_at ?? new Date().toISOString(), // nullの場合のデフォルト値を設定
+        id: record.id,
+        user_id: record.user_id ?? '', // nullの場合のデフォルト値を設定
+        weight: record.weight ?? 0, // nullの場合のデフォルト値を設定
+      }))
+      setWeightRecords(formattedWeightRecords)
     }
 
     const { data: nutritionPlan, error: nutritionError } = await supabase
@@ -55,24 +70,10 @@ export default function DashboardPage() {
       calculateDailyCalories(nutritionPlan, weightRecords[weightRecords.length - 1])
     }
 
-    // 最近の達成を取得
-    const { data: achievements, error: achievementsError } = await supabase
-      .from('achievements')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('achieved_at', { ascending: false })
-      .limit(5)
-
-    if (achievementsError) {
-      console.error('Error fetching achievements:', achievementsError)
-    } else {
-      setRecentAchievements(achievements)
-    }
-
     setLoading(false)
   }
 
-  const calculateDailyCalories = (plan, latestWeight) => {
+  const calculateDailyCalories = (plan: NutritionPlan, latestWeight: WeightRecord) => {
     if (!plan || !latestWeight) return
 
     const { gender, age, height, target_weight, target_date, activity_level } = plan
@@ -219,30 +220,6 @@ export default function DashboardPage() {
                 </div>
               </motion.div>
             )}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="mt-8"
-            >
-              <h3 className="text-xl font-bold mb-4">最近の達成</h3>
-              <ul className="space-y-2">
-                <AnimatePresence>
-                  {recentAchievements.map((achievement, index) => (
-                    <motion.li
-                      key={achievement.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
-                      className="bg-green-100 p-2 rounded"
-                    >
-                      {achievement.description} - {format(new Date(achievement.achieved_at), 'yyyy/MM/dd')}
-                    </motion.li>
-                  ))}
-                </AnimatePresence>
-              </ul>
-            </motion.div>
           </CardContent>
         </Card>
       </motion.div>

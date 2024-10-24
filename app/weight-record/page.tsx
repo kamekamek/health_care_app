@@ -24,7 +24,7 @@ export default function WeightRecordPage() {
       return
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('weight_records')
       .insert([
         { user_id: user.id, weight: parseFloat(weight) }

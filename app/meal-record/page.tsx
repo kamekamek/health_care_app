@@ -44,7 +44,7 @@ export default function MealRecordPage() {
       calories: parseInt(calories)
     }))
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('meal_records')
       .insert(mealRecords)
 
