@@ -144,7 +144,7 @@ export default function NutritionPlanPage() {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gradient-to-r from-green-400 to-blue-500 p-4">
+    <div className="flex flex-col items-center min-h-screen" style={{ background: 'linear-gradient(to bottom, #b89090, #987373)' }}>
       <Button onClick={handleLogout} className="absolute top-4 right-4 bg-red-500 text-white">ログアウト</Button>
       <motion.div
         initial={{ opacity: 0, y: -50 }}
@@ -169,7 +169,7 @@ export default function NutritionPlanPage() {
                   <Input
                     id="age"
                     type="number"
-                    value={formData.age.toString()} // 数値を文字列に変換
+                    value={formData.age.toString()} // 数���を文字列に変換
                     onChange={(e) => handleInputChange('age', parseInt(e.target.value))} // 文字列を数値に変換
                     required
                   />
@@ -192,7 +192,7 @@ export default function NutritionPlanPage() {
                     id="height"
                     type="number"
                     step="0.1"
-                    value={formData.height.toString()} // 数値を文字���に変換
+                    value={formData.height.toString()} // 数値を文字列に変換
                     onChange={(e) => handleInputChange('height', parseFloat(e.target.value))} // 文字列を数値に変換
                     required
                   />

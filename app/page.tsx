@@ -32,14 +32,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-r from-green-400 to-blue-500">
+    <div className="flex flex-col justify-center items-center min-h-screen" style={{ background: 'linear-gradient(to bottom, #b89090, #987373)' }}>
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="text-center mb-8"
       >
-        <h1 className="text-4xl font-bold text-white mb-2">増量ヘルパー ラビタートル</h1>
+        <h1 className="text-4xl font-bold text-white mb-2">増量ヘルパー うさぎさん</h1>
         <p className="text-xl text-white">あなたの健康的な増量をサポートします</p>
       </motion.div>
       <motion.div

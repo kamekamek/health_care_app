@@ -47,7 +47,7 @@ export default function WeightRecordPage() {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gradient-to-r from-blue-400 to-purple-500 p-4">
+    <div className="flex flex-col items-center min-h-screen" style={{ background: 'linear-gradient(to bottom, #b89090, #987373)' }}>
       <Button onClick={handleLogout} className="absolute top-4 right-4 bg-red-500 text-white">ログアウト</Button>
       <motion.div
         initial={{ opacity: 0, y: -50 }}

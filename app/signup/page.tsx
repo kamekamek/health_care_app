@@ -44,7 +44,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-r from-green-400 to-blue-500">
+    <div className="flex flex-col justify-center items-center min-h-screen" style={{ background: 'linear-gradient(to bottom, #b89090, #987373)' }}>
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}

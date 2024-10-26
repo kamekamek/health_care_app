@@ -144,7 +144,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+    <div className="flex justify-center items-center min-h-screen" style={{ background: 'linear-gradient(to bottom, #b89090, #987373)' }}>
       <Button onClick={handleLogout} className="absolute top-4 right-4 bg-red-500 text-white">ログアウト</Button>
       <motion.div
         initial={{ opacity: 0, y: -50 }}
