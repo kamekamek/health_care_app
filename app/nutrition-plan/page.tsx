@@ -117,6 +117,12 @@ export default function NutritionPlanPage() {
       return
     }
 
+    // target_dateが空でないか確認
+    if (!formData.target_date) {
+      setError("目標達成期日を入力してください。")
+      return
+    }
+
     const daily_calories = calculateDailyCalories()
 
     const { error } = await supabase
@@ -169,7 +175,7 @@ export default function NutritionPlanPage() {
                   <Input
                     id="age"
                     type="number"
-                    value={formData.age.toString()} // 数���を文字列に変換
+                    value={formData.age.toString()} // 数値を文字列に変換
                     onChange={(e) => handleInputChange('age', parseInt(e.target.value))} // 文字列を数値に変換
                     required
                   />
