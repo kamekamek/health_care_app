@@ -1,0 +1,24 @@
+.speech-bubble {
+  position: absolute;
+  top: 10%; /* 吹き出しの位置を調整 */
+  left: 50%; /* 吹き出しの位置を調整 */
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  color: #333;
+  white-space: nowrap; /* 吹き出しのテキストが折り返さないようにする */
+}
+
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%; /* 吹き出しの下に三角形を配置 */
+  left: 50%;
+  margin-left: -5px; /* 三角形の位置を調整 */
+  border-width: 5px;
+  border-style: solid;
+  border-color: #fff transparent transparent transparent; /* 吹き出しの色に合わせる */
+}

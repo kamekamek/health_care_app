@@ -10,6 +10,7 @@ import { supabase } from '@/utils/supabase/supabase'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { format } from 'date-fns'
 import { WeightRecord, NutritionPlan } from '../lib/types'
+import GLBModel from '../components/GLBModel' // GLBModelをインポート
 
 interface DailyCalories {
   total: number;
@@ -159,6 +160,9 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
+            <div className="mb-4">
+              <GLBModel url="/rabbit.glb" /> {/* GLBモデルを追加 */}
+            </div>
             <div className="grid grid-cols-3 gap-4 mb-8">
               <Button onClick={() => router.push('/weight-record')} className="bg-blue-500 hover:bg-blue-600">体重を記録する</Button>
               <Button onClick={() => router.push('/meal-record')} className="bg-green-500 hover:bg-green-600">食事を記録する</Button>
